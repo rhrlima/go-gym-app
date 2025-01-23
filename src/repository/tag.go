@@ -92,3 +92,41 @@ func (tr *TagRepository) GetTagByName(name string) (*model.Tag, error) {
 
 	return &tag, nil
 }
+
+func (tr *TagRepository) GetTagsByExerciseId(exercise_id int) ([]model.Tag, error) {
+	query := "SELECT t.* FROM tags t JOIN exercisetags et ON t.id = et.tag_id WHERE et.exercise_id = $1;"
+
+	rows, err := tr.connection.Query(query, exercise_id)
+	if err != nil {
+		fmt.Println(err)
+		return []model.Tag{}, err
+	}
+	defer rows.Close()
+
+	var tagList []model.Tag
+	var tag model.Tag
+
+	for rows.Next() {
+		err = rows.Scan(
+			&tag.ID,
+			&tag.Name,
+		)
+
+		if err != nil {
+			fmt.Println(err)
+			return []model.Tag{}, err
+		}
+
+		tagList = append(tagList, tag)
+	}
+
+	if err != nil {
+		fmt.Println(err)
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return tagList, nil
+}

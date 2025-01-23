@@ -31,10 +31,9 @@ func (tu *TagUsecase) GetTags() ([]model.Tag, error) {
 }
 
 func (tu *TagUsecase) GetTagByName(name string) (*model.Tag, error) {
-	tag, err := tu.repository.GetTagByName(name)
-	if err != nil {
-		return nil, err
-	}
+	return tu.repository.GetTagByName(name)
+}
 
-	return tag, nil
+func (tu *TagUsecase) GetTagsByExerciseId(exerciseId int) ([]model.Tag, error) {
+	return tu.repository.GetTagsByExerciseId(exerciseId)
 }
