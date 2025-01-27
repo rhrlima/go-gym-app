@@ -16,19 +16,13 @@ func NewExerciseTagUsecase(repository repository.ExerciseTagRepository) Exercise
 }
 
 func (etc *ExerciseTagUsecase) CreateExerciseTag(exerciseTag model.ExerciseTag) (model.ExerciseTag, error) {
-	
-	err := etc.repository.CreateExerciseTag(exerciseTag)
-	if err != nil {
-		return model.ExerciseTag{}, err
-	}
-
-	return exerciseTag, nil
+	return exerciseTag, etc.repository.CreateExerciseTag(exerciseTag)
 }
 
-func (etc *ExerciseTagUsecase) GetExerciseTags() ([]model.ExerciseTag, error) {
-	return etc.repository.GetExerciseTags()
-}
+// func (etc *ExerciseTagUsecase) GetExerciseTags() ([]model.ExerciseTag, error) {
+// 	return etc.repository.GetExerciseTags()
+// }
 
-func (etc *ExerciseTagUsecase) GetExerciseTagsByExerciseId(exercise_id int) ([]model.ExerciseTag, error) {
-	return etc.repository.GetExerciseTagsByExerciseId(exercise_id)
-}
+// func (etc *ExerciseTagUsecase) GetExerciseTagsByExerciseId(exercise_id int) ([]model.ExerciseTag, error) {
+// 	return etc.repository.GetExerciseTagsByExerciseId(exercise_id)
+// }

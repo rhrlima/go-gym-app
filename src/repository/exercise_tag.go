@@ -23,7 +23,7 @@ func (etr *ExerciseTagRepository) CreateExerciseTag(exerciseTag model.ExerciseTa
 	}
 
 	query, err := etr.connection.Prepare(
-		"INSERT INTO exercisetags (exercise_id, tag_id) VALUES ($1, $2)")
+		"INSERT INTO exercise_tags (exercise_id, tag_id) VALUES ($1, $2)")
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -41,7 +41,7 @@ func (etr *ExerciseTagRepository) CreateExerciseTag(exerciseTag model.ExerciseTa
 
 func (etr *ExerciseTagRepository) GetExerciseTags() ([]model.ExerciseTag, error) {
 
-	rows, err := etr.connection.Query("SELECT exercise_id, tag_id FROM exercisetags")
+	rows, err := etr.connection.Query("SELECT exercise_id, tag_id FROM exercise_tags")
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (etr *ExerciseTagRepository) GetExerciseTags() ([]model.ExerciseTag, error)
 
 func (etr *ExerciseTagRepository) GetExerciseTagsByExerciseId(exercise_id int) ([]model.ExerciseTag, error) {
 
-	query := "SELECT exercise_id, tag_id FROM exercisetags WHERE exercise_id = $1"
+	query := "SELECT exercise_id, tag_id FROM exercise_tags WHERE exercise_id = $1"
 	rows, err := etr.connection.Query(query, exercise_id)
 	if err != nil {
 		return []model.ExerciseTag{}, err
