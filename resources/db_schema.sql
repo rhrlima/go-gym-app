@@ -1,82 +1,62 @@
 -- Idempotent SQL script for gym app database structure
 
 -- Database
-CREATE SCHEMA IF NOT EXISTS Gym;
+SELECT 'CREATE DATABASE gym'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'gym')
 
--- -- Users Table
--- CREATE TABLE IF NOT EXISTS Users (
---     id SERIAL PRIMARY KEY,
---     username VARCHAR(50) UNIQUE NOT NULL,
---     email VARCHAR(100) UNIQUE NOT NULL,
---     password_hash VARCHAR(255) NOT NULL,
---     current_train_id INT,
---     FOREIGN KEY (current_train_id) REFERENCES Train(id) ON DELETE SET NULL
--- );
+-- Connect to the correct database
+\c gym
 
--- Exercises Table
-CREATE TABLE IF NOT EXISTS Exercises (
+-- exercises Table
+CREATE TABLE IF NOT EXISTS exercises (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
 );
 
--- Tags Table
-CREATE TABLE IF NOT EXISTS Tags (
+-- tags Table
+CREATE TABLE IF NOT EXISTS tags (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL
 );
 
--- ExerciseTags Table
-CREATE TABLE IF NOT EXISTS ExerciseTags (
+-- Exercisetags Table
+CREATE TABLE IF NOT EXISTS exercise_tags (
     exercise_id INT NOT NULL,
     tag_id INT NOT NULL,
     PRIMARY KEY (exercise_id, tag_id),
-    FOREIGN KEY (exercise_id) REFERENCES Exercises(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES Tags(id) ON DELETE CASCADE
+    FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
--- -- Train Table
--- CREATE TABLE IF NOT EXISTS Train (
---     id SERIAL PRIMARY KEY,
---     name VARCHAR(100) NOT NULL,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
--- );
+-- -- train Table
+CREATE TABLE IF NOT EXISTS train (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- -- TrainSections Table
--- CREATE TABLE IF NOT EXISTS TrainSections (
---     id SERIAL PRIMARY KEY,
---     train_id INT NOT NULL,
---     section_name CHAR(1) NOT NULL CHECK (section_name IN ('A', 'B', 'C', 'D')),
---     FOREIGN KEY (train_id) REFERENCES Train(id) ON DELETE CASCADE
--- );
+-- -- train_sections Table
+CREATE TABLE IF NOT EXISTS train_sections (
+    id SERIAL PRIMARY KEY,
+    train_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    FOREIGN KEY (train_id) REFERENCES train(id) ON DELETE CASCADE
+);
 
--- -- TrainExercises Table
--- CREATE TABLE IF NOT EXISTS TrainExercises (
---     id SERIAL PRIMARY KEY,
---     section_id INT NOT NULL,
---     exercise_id INT NOT NULL,
---     sets INT NOT NULL,
---     reps INT NOT NULL,
---     comment TEXT,
---     FOREIGN KEY (section_id) REFERENCES TrainSections(id) ON DELETE CASCADE,
---     FOREIGN KEY (exercise_id) REFERENCES Exercises(id) ON DELETE CASCADE
--- );
+-- -- train_exercises Table
+CREATE TABLE IF NOT EXISTS train_exercises (
+    id SERIAL PRIMARY KEY,
+    section_id INT NOT NULL,
+    exercise_id INT NOT NULL,
+    comment TEXT,
+    FOREIGN KEY (section_id) REFERENCES train_sections(id) ON DELETE CASCADE,
+    FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
+);
 
--- -- TrainHistory Table
--- CREATE TABLE IF NOT EXISTS TrainHistory (
---     id SERIAL PRIMARY KEY,
---     user_id INT NOT NULL,
---     train_id INT NOT NULL,
---     completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
---     FOREIGN KEY (train_id) REFERENCES Train(id) ON DELETE CASCADE
--- );
-
--- -- SectionCompletions Table
--- CREATE TABLE IF NOT EXISTS SectionCompletions (
---     id SERIAL PRIMARY KEY,
---     user_id INT NOT NULL,
---     section_id INT NOT NULL,
---     completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
---     FOREIGN KEY (section_id) REFERENCES TrainSections(id) ON DELETE CASCADE
--- );
+-- -- Exercise Sets Table
+CREATE TABLE IF NOT EXISTS exercise_sets (
+    id SERIAL PRIMARY KEY,
+    train_exercise_id INT NOT NULL,
+    reps INT NOT NULL,
+    FOREIGN KEY (train_exercise_id) REFERENCES train_exercises(id) ON DELETE CASCADE
+);
