@@ -1,10 +1,9 @@
 package main
 
 import (
-	"gym-app/controller"
+	"fmt"
 	"gym-app/db"
-	"gym-app/repository"
-	"gym-app/usecase"
+	"gym-app/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,31 +19,10 @@ func main() {
 		panic(err)
 	}
 
-	// Repository
-	ExerciseRepository := repository.NewExerciseRepository(dbConnection)
-	TagRepository := repository.NewTagRepository(dbConnection)
+	c := routes.NewContainer(dbConnection)
 
-	// Usecase
-	ExerciseUsecase := usecase.NewExerciseUsecase(ExerciseRepository)
-	TagUsecase := usecase.NewTagUsecase(TagRepository)
+	routes.RegisterRoutes(server, c)
 
-	// Controller
-	ExerciseController := controller.NewExerciseController(ExerciseUsecase)
-	TagController := controller.NewTagController(TagUsecase)
-
-	server.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "Hello World",
-		})
-	})
-
-	server.POST("/exercise", ExerciseController.CreateExercise)
-	server.GET("/exercises", ExerciseController.GetExercises)
-	server.GET("/exercise/:exerciseId", ExerciseController.GetExerciseById)
-
-	server.POST("/tag", TagController.CreateTag)
-	server.GET("/tags", TagController.GetTags)
-	server.GET("/tag/:tagName", TagController.GetTagByName)
-
-	server.Run(":"+PORT)
+	fmt.Println("Server running on port", PORT)
+	server.Run(":" + PORT)
 }

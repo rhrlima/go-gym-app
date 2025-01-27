@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"gym-app/model"
 	"gym-app/usecase"
 	"net/http"
@@ -9,35 +10,43 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type exerciseController struct {
+type ExerciseController struct {
 	exerciseUsecase usecase.ExerciseUsecase
 }
 
-func NewExerciseController(usecase usecase.ExerciseUsecase) exerciseController {
-	return exerciseController{
+func NewExerciseController(usecase usecase.ExerciseUsecase) ExerciseController {
+	return ExerciseController{
 		exerciseUsecase: usecase,
 	}
 }
 
-func (ec *exerciseController) CreateExercise(ctx *gin.Context) {
+func (ec *ExerciseController) CreateExercise(ctx *gin.Context) {
 
 	var exercise model.Exercise
 	err := ctx.BindJSON(&exercise)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		response := model.Response{
+			Message: "Invalid request body",
+		}
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	insertedExercise, err := ec.exerciseUsecase.CreateExercise(exercise)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		response := model.Response{
+			Message: "Failed to create exercise",
+		}
+		fmt.Println(err)
+		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
 	ctx.JSON(http.StatusCreated, insertedExercise)
 }
 
-func (ec *exerciseController) GetExercises(ctx *gin.Context) {
+func (ec *ExerciseController) GetExercises(ctx *gin.Context) {
 
 	exercises, err := ec.exerciseUsecase.GetExercises()
 	if err != nil {
@@ -47,7 +56,7 @@ func (ec *exerciseController) GetExercises(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, exercises)
 }
 
-func (ec *exerciseController) GetExerciseById(ctx *gin.Context) {
+func (ec *ExerciseController) GetExerciseById(ctx *gin.Context) {
 
 	id := ctx.Param("exerciseId")
 
