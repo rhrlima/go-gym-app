@@ -48,15 +48,8 @@ CREATE TABLE IF NOT EXISTS train_exercises (
     id SERIAL PRIMARY KEY,
     section_id INT NOT NULL,
     exercise_id INT NOT NULL,
+    sets TEXT,
     comment TEXT,
     FOREIGN KEY (section_id) REFERENCES train_sections(id) ON DELETE CASCADE,
     FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
-);
-
--- -- Exercise Sets Table
-CREATE TABLE IF NOT EXISTS exercise_sets (
-    id SERIAL PRIMARY KEY,
-    train_exercise_id INT NOT NULL,
-    reps INT NOT NULL,
-    FOREIGN KEY (train_exercise_id) REFERENCES train_exercises(id) ON DELETE CASCADE
 );
