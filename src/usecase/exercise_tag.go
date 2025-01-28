@@ -18,11 +18,3 @@ func NewExerciseTagUsecase(repository repository.ExerciseTagRepository) Exercise
 func (etc *ExerciseTagUsecase) CreateExerciseTag(exerciseTag model.ExerciseTag) (model.ExerciseTag, error) {
 	return exerciseTag, etc.repository.CreateExerciseTag(exerciseTag)
 }
-
-// func (etc *ExerciseTagUsecase) GetExerciseTags() ([]model.ExerciseTag, error) {
-// 	return etc.repository.GetExerciseTags()
-// }
-
-// func (etc *ExerciseTagUsecase) GetExerciseTagsByExerciseId(exercise_id int) ([]model.ExerciseTag, error) {
-// 	return etc.repository.GetExerciseTagsByExerciseId(exercise_id)
-// }
