@@ -3,36 +3,29 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "gym"
-)
-
 func ConnectDB() (*sql.DB, error) {
 
-	psqlInfo := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname,
-	)
+	connStr := os.Getenv("DATABASE_URL")
+	if connStr == "" {
+		return nil, fmt.Errorf("DATABASE_URL is not set")
+	}
 
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	fmt.Println("Connected to " + dbname)
+	fmt.Println("Connected to database")
 
 	return db, nil
 }
