@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"gym-app/db"
+	"gym-app/routes"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,10 +18,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	server.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "Hello World",
-		})
-	})
-	server.Run(":"+PORT)
+
+	c := routes.NewContainer(dbConnection)
+
+	routes.RegisterRoutes(server, c)
+
+	fmt.Println("Server running on port", PORT)
+	server.Run(":" + PORT)
 }
