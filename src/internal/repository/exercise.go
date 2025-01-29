@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"gym-app/model"
+	"gym-app/internal/model"
 )
 
 type ExerciseRepository struct {

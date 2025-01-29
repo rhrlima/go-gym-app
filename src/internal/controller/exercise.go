@@ -2,8 +2,8 @@ package controller
 
 import (
 	"fmt"
-	"gym-app/model"
-	"gym-app/usecase"
+	"gym-app/internal/model"
+	"gym-app/internal/usecase"
 	"net/http"
 	"strconv"
 

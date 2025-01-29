@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"gym-app/model"
-	"gym-app/usecase"
+	"gym-app/internal/model"
+	"gym-app/internal/usecase"
 	"net/http"
 	"strconv"
 
@@ -93,7 +93,7 @@ func (tc *TagController) GetTagsByExerciseId(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	
+
 	tags, err := tc.tagUsecase.GetTagsByExerciseId(exerciseId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)

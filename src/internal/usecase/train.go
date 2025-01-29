@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"gym-app/model"
-	"gym-app/repository"
+	"gym-app/internal/model"
+	"gym-app/internal/repository"
 )
 
 type TrainUseCase struct {

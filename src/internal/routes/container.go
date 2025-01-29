@@ -2,9 +2,9 @@ package routes
 
 import (
 	"database/sql"
-	"gym-app/controller"
-	"gym-app/repository"
-	"gym-app/usecase"
+	"gym-app/internal/controller"
+	"gym-app/internal/repository"
+	"gym-app/internal/usecase"
 )
 
 type Container struct {

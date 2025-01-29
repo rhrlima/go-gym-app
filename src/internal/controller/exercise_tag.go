@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"gym-app/usecase"
+	"gym-app/internal/usecase"
 )
 
 type ExerciseTagController struct {

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"gym-app/db"
-	"gym-app/routes"
+	"gym-app/internal/db"
+	"gym-app/internal/routes"
 
 	"github.com/gin-gonic/gin"
 )

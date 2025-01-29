@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"gym-app/model"
+	"gym-app/internal/model"
 )
 
 type ExerciseTagRepository struct {
