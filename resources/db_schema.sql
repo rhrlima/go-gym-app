@@ -53,3 +53,12 @@ CREATE TABLE IF NOT EXISTS train_exercises (
     FOREIGN KEY (section_id) REFERENCES train_sections(id) ON DELETE CASCADE,
     FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
 );
+
+-- -- train sessions Table
+CREATE TABLE IF NOT EXISTS train_sessions (
+    id SERIAL PRIMARY KEY,
+    train_section_id INT NOT NULL,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (train_section_id) REFERENCES train_sections(id) ON DELETE CASCADE
+);
