@@ -8,4 +8,5 @@ func RegisterRoutes(server *gin.Engine, c *Container) {
 	RegisterExerciseRoutes(api, c)
 	RegisterTagRoutes(api, c)
 	RegisterTrainRoutes(api, c)
+	RegisterTrainSessionRoutes(api, c)
 }
