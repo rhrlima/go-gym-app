@@ -70,14 +70,12 @@ func (tr *TrainSessionRepository) GetTrainSessionByID(train_session_id int) (mod
 		&trainSession.StartedAt,
 		&trainSession.EndedAt,
 	)
-	if err != nil {
-		return model.TrainSession{}, err
+
+	if err == sql.ErrNoRows {
+		return model.TrainSession{}, nil
 	}
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return model.TrainSession{}, nil
-		}
 		return model.TrainSession{}, err
 	}
 
