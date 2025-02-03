@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"gym-app/internal/model"
 )
 
@@ -13,6 +14,28 @@ func NewExerciseTagRepository(connection *sql.DB) ExerciseTagRepository {
 	return ExerciseTagRepository{
 		connection: connection,
 	}
+}
+
+func (etr *ExerciseTagRepository) GetExerciseTags() ([]model.ExerciseTag, error) {
+
+	rows, err := etr.connection.Query("SELECT exercise_id, tag_id FROM exercise_tags")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var exerciseTags []model.ExerciseTag
+	for rows.Next() {
+		var exerciseTag model.ExerciseTag
+		err := rows.Scan(&exerciseTag.ExerciseID, &exerciseTag.TagID)
+		if err != nil {
+			return nil, err
+		}
+
+		exerciseTags = append(exerciseTags, exerciseTag)
+	}
+
+	return exerciseTags, nil
 }
 
 func (etr *ExerciseTagRepository) CreateExerciseTag(exerciseTag model.ExerciseTag) error {
@@ -39,18 +62,43 @@ func (etr *ExerciseTagRepository) CreateExerciseTag(exerciseTag model.ExerciseTa
 	return nil
 }
 
-func (etr *ExerciseTagRepository) GetExerciseTags() ([]model.ExerciseTag, error) {
+func (etr *ExerciseTagRepository) UpdateExerciseTag(exerciseTag model.ExerciseTag) error {
 
-	rows, err := etr.connection.Query("SELECT exercise_id, tag_id FROM exercise_tags")
+	query, err := etr.connection.Prepare(
+		"UPDATE exercise_tags SET tag_id = $1 WHERE exercise_id = $2")
+	fmt.Println("A", err)
+	if err != nil {
+		return err
+	}
+	defer query.Close()
+
+	_, err = query.Exec(exerciseTag.TagID, exerciseTag.ExerciseID)
+	fmt.Println("B", err)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (etr *ExerciseTagRepository) GetExerciseTagsByExerciseID(exercise_id int) ([]model.ExerciseTag, error) {
+
+	query := "SELECT exercise_id, tag_id FROM exercise_tags WHERE exercise_id = $1"
+	rows, err := etr.connection.Query(query, exercise_id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
+	fmt.Println(rows, err)
+
 	var exerciseTags []model.ExerciseTag
 	for rows.Next() {
 		var exerciseTag model.ExerciseTag
-		err := rows.Scan(&exerciseTag.ExerciseID, &exerciseTag.TagID)
+		err := rows.Scan(
+			&exerciseTag.ExerciseID,
+			&exerciseTag.TagID,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -61,25 +109,13 @@ func (etr *ExerciseTagRepository) GetExerciseTags() ([]model.ExerciseTag, error)
 	return exerciseTags, nil
 }
 
-func (etr *ExerciseTagRepository) GetExerciseTagsByExerciseId(exercise_id int) ([]model.ExerciseTag, error) {
+func (etr *ExerciseTagRepository) DeleteExerciseTags(exercise_id int) error {
 
-	query := "SELECT exercise_id, tag_id FROM exercise_tags WHERE exercise_id = $1"
-	rows, err := etr.connection.Query(query, exercise_id)
+	query := "DELETE FROM exercise_tags WHERE exercise_id = $1"
+	_, err := etr.connection.Exec(query, exercise_id)
 	if err != nil {
-		return []model.ExerciseTag{}, err
-	}
-	defer rows.Close()
-
-	var exerciseTags []model.ExerciseTag
-	for rows.Next() {
-		var exerciseTag model.ExerciseTag
-		err := rows.Scan(&exerciseTag.ExerciseID, &exerciseTag.TagID)
-		if err != nil {
-			return nil, err
-		}
-
-		exerciseTags = append(exerciseTags, exerciseTag)
+		return err
 	}
 
-	return exerciseTags, nil
+	return nil
 }
