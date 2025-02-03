@@ -16,6 +16,38 @@ func NewTagRepository(connection *sql.DB) TagRepository {
 	}
 }
 
+func (tr *TagRepository) GetTags() ([]model.Tag, error) {
+
+	query := "SELECT id, name FROM tags;"
+
+	rows, err := tr.connection.Query(query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var tagList []model.Tag
+	var tagObject model.Tag
+
+	for rows.Next() {
+		err = rows.Scan(
+			&tagObject.ID,
+			&tagObject.Name,
+		)
+
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+
+		tagList = append(tagList, tagObject)
+	}
+
+	rows.Close()
+
+	return tagList, nil
+}
+
 func (tr *TagRepository) CreateTag(tag model.Tag) (int, error) {
 
 	var id int
@@ -34,41 +66,45 @@ func (tr *TagRepository) CreateTag(tag model.Tag) (int, error) {
 	return id, nil
 }
 
-func (tr *TagRepository) GetTags() ([]model.Tag, error) {
+func (tr *TagRepository) UpdateTag(tag model.Tag) error {
 
-	query := "SELECT id, name FROM tags;"
+	query := "UPDATE tags SET name=$1 WHERE id=$2"
+	_, err := tr.connection.Exec(query,
+		tag.Name,
+		tag.ID,
+	)
 
-	rows, err := tr.connection.Query(query)
+	return err
+}
+
+func (tr *TagRepository) GetTagByID(tag_id int) (*model.Tag, error) {
+
+	query := "SELECT * FROM tags WHERE id=$1"
+	stmt, err := tr.connection.Prepare(query)
 	if err != nil {
-		fmt.Println(err)
-		return []model.Tag{}, err
+		return nil, err
 	}
+	defer stmt.Close()
 
-	var tagList []model.Tag
-	var tagObject model.Tag
+	var tag model.Tag
+	err = stmt.QueryRow(tag_id).Scan(
+		&tag.ID,
+		&tag.Name,
+	)
 
-	for rows.Next() {
-		err = rows.Scan(
-			&tagObject.ID,
-			&tagObject.Name,
-		)
-
-		if err != nil {
-			fmt.Println(err)
-			return []model.Tag{}, err
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
 		}
-
-		tagList = append(tagList, tagObject)
+		return nil, err
 	}
 
-	rows.Close()
-
-	return tagList, nil
+	return &tag, nil
 }
 
 func (tr *TagRepository) GetTagByName(name string) (*model.Tag, error) {
-	query := "SELECT * FROM tags WHERE name=$1"
 
+	query := "SELECT * FROM tags WHERE name=$1"
 	stmt, err := tr.connection.Prepare(query)
 	if err != nil {
 		return nil, err
@@ -91,12 +127,12 @@ func (tr *TagRepository) GetTagByName(name string) (*model.Tag, error) {
 	return &tag, nil
 }
 
-func (tr *TagRepository) GetTagsByExerciseId(exercise_id int) ([]model.Tag, error) {
-	query := "SELECT t.* FROM tags t JOIN exercise_tags et ON t.id = et.tag_id WHERE et.exercise_id = $1;"
+func (tr *TagRepository) GetTagsByExerciseID(exercise_id int) ([]model.Tag, error) {
 
+	query := "SELECT t.* FROM tags t JOIN exercise_tags et ON t.id = et.tag_id WHERE et.exercise_id = $1;"
 	rows, err := tr.connection.Query(query, exercise_id)
 	if err != nil {
-		return []model.Tag{}, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -110,11 +146,19 @@ func (tr *TagRepository) GetTagsByExerciseId(exercise_id int) ([]model.Tag, erro
 		)
 
 		if err != nil {
-			return []model.Tag{}, err
+			return nil, err
 		}
 
 		tagList = append(tagList, tag)
 	}
 
 	return tagList, nil
+}
+
+func (tr *TagRepository) DeleteTagByID(tag_id int) error {
+
+	query := "DELETE FROM tags WHERE id=$1"
+	_, err := tr.connection.Exec(query, tag_id)
+
+	return err
 }
