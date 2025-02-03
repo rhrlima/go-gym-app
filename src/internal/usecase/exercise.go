@@ -23,6 +23,25 @@ func NewExerciseUsecase(
 	}
 }
 
+func (eu *ExerciseUsecase) GetExercises() ([]model.Exercise, error) {
+
+	exercises, err := eu.exerciseRepo.GetExercises()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, exercise := range exercises {
+		exerciseTags, err := eu.tagRepo.GetTagsByExerciseID(exercise.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		exercises[i].Tags = exerciseTags
+	}
+
+	return exercises, nil
+}
+
 func (eu *ExerciseUsecase) CreateExercise(exercise model.Exercise) (model.Exercise, error) {
 
 	exerciseId, err := eu.exerciseRepo.CreateExercise(exercise)
@@ -32,12 +51,7 @@ func (eu *ExerciseUsecase) CreateExercise(exercise model.Exercise) (model.Exerci
 
 	exercise.ID = exerciseId
 
-	for _, tagName := range exercise.Tags {
-		tag, err := eu.tagRepo.GetTagByName(tagName)
-		if err != nil {
-			return model.Exercise{}, err
-		}
-
+	for _, tag := range exercise.Tags {
 		err = eu.exerciseTagRepo.CreateExerciseTag(model.ExerciseTag{
 			ExerciseID: exercise.ID,
 			TagID:      tag.ID,
@@ -51,47 +65,54 @@ func (eu *ExerciseUsecase) CreateExercise(exercise model.Exercise) (model.Exerci
 	return exercise, nil
 }
 
-func (eu *ExerciseUsecase) GetExercises() ([]model.Exercise, error) {
+func (eu *ExerciseUsecase) UpdateExercise(exercise model.Exercise) (model.Exercise, error) {
 
-	exercises, err := eu.exerciseRepo.GetExercises()
+	// updates exercise
+	err := eu.exerciseRepo.UpdateExercise(exercise)
 	if err != nil {
-		return nil, err
+		return model.Exercise{}, err
 	}
 
-	for i, exercise := range exercises {
-		exerciseTags, err := eu.tagRepo.GetTagsByExerciseId(exercise.ID)
+	// deletes all tags for the exercise
+	err = eu.exerciseTagRepo.DeleteExerciseTags(exercise.ID)
+	if err != nil {
+		return model.Exercise{}, err
+	}
+
+	// adds tags to the exercise again
+	for _, tag := range exercise.Tags {
+		err = eu.exerciseTagRepo.CreateExerciseTag(model.ExerciseTag{
+			ExerciseID: exercise.ID,
+			TagID:      tag.ID,
+		})
 		if err != nil {
-			return nil, err
+			return model.Exercise{}, err
 		}
-
-		tagNames := []string{}
-		for _, tag := range exerciseTags {
-			tagNames = append(tagNames, tag.Name)
-		}
-
-		exercises[i].Tags = tagNames
 	}
-
-	return exercises, nil
-}
-
-func (eu *ExerciseUsecase) GetExerciseById(exercise_id int) (*model.Exercise, error) {
-	exercise, err := eu.exerciseRepo.GetExerciseById(exercise_id)
-	if err != nil {
-		return nil, err
-	}
-
-	exerciseTags, err := eu.tagRepo.GetTagsByExerciseId(exercise_id)
-	if err != nil {
-		return nil, err
-	}
-
-	tagNames := []string{}
-	for _, tag := range exerciseTags {
-		tagNames = append(tagNames, tag.Name)
-	}
-
-	exercise.Tags = tagNames
 
 	return exercise, nil
+}
+
+func (eu *ExerciseUsecase) GetExerciseByID(exercise_id int) (*model.Exercise, error) {
+	exercise, err := eu.exerciseRepo.GetExerciseByID(exercise_id)
+	if err != nil {
+		return nil, err
+	}
+
+	if exercise == nil {
+		return nil, nil
+	}
+
+	exerciseTags, err := eu.tagRepo.GetTagsByExerciseID(exercise_id)
+	if err != nil {
+		return nil, err
+	}
+
+	exercise.Tags = exerciseTags
+
+	return exercise, nil
+}
+
+func (eu *ExerciseUsecase) DeleteExercise(exercise_id int) error {
+	return eu.exerciseRepo.DeleteExercise(exercise_id)
 }

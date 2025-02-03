@@ -16,6 +16,36 @@ func NewExerciseRepository(connection *sql.DB) ExerciseRepository {
 	}
 }
 
+func (er *ExerciseRepository) GetExercises() ([]model.Exercise, error) {
+
+	query := "SELECT id, name FROM exercises"
+
+	rows, err := er.connection.Query(query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var exerciseList []model.Exercise
+	var exerciseObject model.Exercise
+
+	for rows.Next() {
+		err = rows.Scan(
+			&exerciseObject.ID,
+			&exerciseObject.Name,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		exerciseList = append(exerciseList, exerciseObject)
+	}
+
+	return exerciseList, nil
+}
+
 func (er *ExerciseRepository) CreateExercise(exercise model.Exercise) (int, error) {
 
 	var id int
@@ -34,48 +64,28 @@ func (er *ExerciseRepository) CreateExercise(exercise model.Exercise) (int, erro
 	return id, nil
 }
 
-func (er *ExerciseRepository) GetExercises() ([]model.Exercise, error) {
+func (er *ExerciseRepository) UpdateExercise(exercise model.Exercise) error {
 
-	query := "SELECT id, name FROM exercises"
+	query := "UPDATE exercises SET name = $1 WHERE id = $2"
+	_, err := er.connection.Exec(query,
+		exercise.Name,
+		exercise.ID,
+	)
 
-	rows, err := er.connection.Query(query)
-	if err != nil {
-		fmt.Println(err)
-		return []model.Exercise{}, err
-	}
-	defer rows.Close()
-
-	var exerciseList []model.Exercise
-	var exerciseObject model.Exercise
-
-	for rows.Next() {
-		err = rows.Scan(
-			&exerciseObject.ID,
-			&exerciseObject.Name,
-		)
-
-		if err != nil {
-			return []model.Exercise{}, err
-		}
-
-		exerciseList = append(exerciseList, exerciseObject)
-	}
-
-	return exerciseList, nil
+	return err
 }
 
-func (er *ExerciseRepository) GetExerciseById(exercise_id int) (*model.Exercise, error) {
-	query, err := er.connection.Prepare(
-		"SELECT * FROM exercises WHERE id = $1",
-	)
+func (er *ExerciseRepository) GetExerciseByID(exercise_id int) (*model.Exercise, error) {
+
+	query := "SELECT * FROM exercises WHERE id = $1"
+	stmt, err := er.connection.Prepare(query)
 	if err != nil {
 		return nil, err
 	}
-	defer query.Close()
+	defer stmt.Close()
 
 	var exercise model.Exercise
-
-	err = query.QueryRow(exercise_id).Scan(
+	err = stmt.QueryRow(exercise_id).Scan(
 		&exercise.ID,
 		&exercise.Name,
 	)
@@ -88,4 +98,10 @@ func (er *ExerciseRepository) GetExerciseById(exercise_id int) (*model.Exercise,
 	}
 
 	return &exercise, nil
+}
+
+func (er *ExerciseRepository) DeleteExercise(exercise_id int) error {
+	query := "DELETE FROM exercises WHERE id = $1"
+	_, err := er.connection.Exec(query, exercise_id)
+	return err
 }

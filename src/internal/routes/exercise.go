@@ -5,7 +5,11 @@ import (
 )
 
 func RegisterExerciseRoutes(router *gin.RouterGroup, c *Container) {
-	router.POST("/exercise", c.ExerciseController.CreateExercise)
-	router.GET("/exercise/:exerciseId", c.ExerciseController.GetExerciseById)
 	router.GET("/exercises", c.ExerciseController.GetExercises)
+
+	router.POST("/exercise", c.ExerciseController.CreateExercise)
+	router.PUT("/exercise", c.ExerciseController.UpdateExercise)
+
+	router.GET("/exercise/:exerciseId", c.ExerciseController.GetExerciseByID)
+	router.DELETE("/exercise/:exerciseId", c.ExerciseController.DeleteExercise)
 }

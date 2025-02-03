@@ -20,6 +20,16 @@ func NewExerciseController(usecase usecase.ExerciseUsecase) ExerciseController {
 	}
 }
 
+func (ec *ExerciseController) GetExercises(ctx *gin.Context) {
+
+	exercises, err := ec.exerciseUsecase.GetExercises()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+	}
+
+	ctx.JSON(http.StatusOK, exercises)
+}
+
 func (ec *ExerciseController) CreateExercise(ctx *gin.Context) {
 
 	var exercise model.Exercise
@@ -46,17 +56,32 @@ func (ec *ExerciseController) CreateExercise(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, insertedExercise)
 }
 
-func (ec *ExerciseController) GetExercises(ctx *gin.Context) {
+func (ec *ExerciseController) UpdateExercise(ctx *gin.Context) {
 
-	exercises, err := ec.exerciseUsecase.GetExercises()
+	var exercise model.Exercise
+	err := ctx.BindJSON(&exercise)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		response := model.Response{
+			Message: "Invalid request body",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
 	}
 
-	ctx.JSON(http.StatusOK, exercises)
+	insertedExercise, err := ec.exerciseUsecase.UpdateExercise(exercise)
+	if err != nil {
+		fmt.Println(err)
+		response := model.Response{
+			Message: "Failed to update exercise",
+		}
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, insertedExercise)
 }
 
-func (ec *ExerciseController) GetExerciseById(ctx *gin.Context) {
+func (ec *ExerciseController) GetExerciseByID(ctx *gin.Context) {
 
 	id := ctx.Param("exerciseId")
 
@@ -77,9 +102,11 @@ func (ec *ExerciseController) GetExerciseById(ctx *gin.Context) {
 		return
 	}
 
-	exercise, err := ec.exerciseUsecase.GetExerciseById(exerciseId)
+	exercise, err := ec.exerciseUsecase.GetExerciseByID(exerciseId)
+	fmt.Println(exercise, err)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
+		return
 	}
 
 	if exercise == nil {
@@ -91,4 +118,33 @@ func (ec *ExerciseController) GetExerciseById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, exercise)
+}
+
+func (ec *ExerciseController) DeleteExercise(ctx *gin.Context) {
+
+	id := ctx.Param("exerciseId")
+	if id == "" {
+		response := model.Response{
+			Message: "Exercise ID is required",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	exerciseId, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "Exercise ID must be an integer",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	err = ec.exerciseUsecase.DeleteExercise(exerciseId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, nil)
 }
