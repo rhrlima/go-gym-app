@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"gym-app/internal/model"
 )
 
@@ -22,7 +21,6 @@ func (tr *TagRepository) GetTags() ([]model.Tag, error) {
 
 	rows, err := tr.connection.Query(query)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -36,7 +34,6 @@ func (tr *TagRepository) GetTags() ([]model.Tag, error) {
 		)
 
 		if err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
 

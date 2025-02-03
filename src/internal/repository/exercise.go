@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"gym-app/internal/model"
 )
 
@@ -19,18 +18,15 @@ func NewExerciseRepository(connection *sql.DB) ExerciseRepository {
 func (er *ExerciseRepository) GetExercises() ([]model.Exercise, error) {
 
 	query := "SELECT id, name FROM exercises"
-
 	rows, err := er.connection.Query(query)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
 
 	var exerciseList []model.Exercise
-	var exerciseObject model.Exercise
-
 	for rows.Next() {
+		var exerciseObject model.Exercise
 		err = rows.Scan(
 			&exerciseObject.ID,
 			&exerciseObject.Name,

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"gym-app/internal/model"
 )
 
@@ -66,14 +65,12 @@ func (etr *ExerciseTagRepository) UpdateExerciseTag(exerciseTag model.ExerciseTa
 
 	query, err := etr.connection.Prepare(
 		"UPDATE exercise_tags SET tag_id = $1 WHERE exercise_id = $2")
-	fmt.Println("A", err)
 	if err != nil {
 		return err
 	}
 	defer query.Close()
 
 	_, err = query.Exec(exerciseTag.TagID, exerciseTag.ExerciseID)
-	fmt.Println("B", err)
 	if err != nil {
 		return err
 	}
@@ -89,8 +86,6 @@ func (etr *ExerciseTagRepository) GetExerciseTagsByExerciseID(exercise_id int) (
 		return nil, err
 	}
 	defer rows.Close()
-
-	fmt.Println(rows, err)
 
 	var exerciseTags []model.ExerciseTag
 	for rows.Next() {

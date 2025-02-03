@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"gym-app/internal/model"
 	"gym-app/internal/usecase"
 	"net/http"
@@ -27,19 +26,15 @@ func (tc *TrainController) CreateTrain(ctx *gin.Context) {
 		response := model.Response{
 			Message: "Invalid request body",
 		}
-		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-
-	fmt.Println(train)
 
 	insertedTrain, err := tc.trainUseCase.CreateTrain(train)
 	if err != nil {
 		response := model.Response{
 			Message: "Failed to create train",
 		}
-		fmt.Println(err)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"gym-app/internal/model"
 )
 
@@ -17,8 +16,6 @@ func NewTrainSessionRepository(connection *sql.DB) TrainSessionRepository {
 }
 
 func (tr *TrainSessionRepository) CreateTrainSession(trainSession model.TrainSession) (int, error) {
-
-	fmt.Println(trainSession)
 
 	var id int
 	query := "INSERT INTO train_sessions (train_section_id) VALUES ($1) RETURNING id"

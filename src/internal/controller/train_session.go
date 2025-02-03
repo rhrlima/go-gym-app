@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"gym-app/internal/model"
 	"gym-app/internal/usecase"
 	"net/http"
@@ -71,7 +70,6 @@ func (tc *TrainSessionController) GetTrainSessionByID(ctx *gin.Context) {
 
 	trainSession, err := tc.trainSessionUsecase.GetTrainSessionByID(trainSessionId)
 	if err != nil {
-		fmt.Println(err)
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}

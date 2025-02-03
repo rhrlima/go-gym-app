@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"gym-app/internal/model"
 	"gym-app/internal/usecase"
 	"net/http"
@@ -38,7 +37,6 @@ func (ec *ExerciseController) CreateExercise(ctx *gin.Context) {
 		response := model.Response{
 			Message: "Invalid request body",
 		}
-		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -48,7 +46,6 @@ func (ec *ExerciseController) CreateExercise(ctx *gin.Context) {
 		response := model.Response{
 			Message: "Failed to create exercise",
 		}
-		fmt.Println(err)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
@@ -70,7 +67,6 @@ func (ec *ExerciseController) UpdateExercise(ctx *gin.Context) {
 
 	insertedExercise, err := ec.exerciseUsecase.UpdateExercise(exercise)
 	if err != nil {
-		fmt.Println(err)
 		response := model.Response{
 			Message: "Failed to update exercise",
 		}
@@ -103,7 +99,6 @@ func (ec *ExerciseController) GetExerciseByID(ctx *gin.Context) {
 	}
 
 	exercise, err := ec.exerciseUsecase.GetExerciseByID(exerciseId)
-	fmt.Println(exercise, err)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
